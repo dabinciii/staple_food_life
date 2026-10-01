@@ -9,7 +9,7 @@
 *{box-sizing:border-box} body{margin:0;background:#F5F0EA;color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 main{max-width:1280px;margin:auto;padding:60px}
 .top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:24px;flex-wrap:wrap}
-.title{font-size:36px;font-weight:600;letter-spacing:-.03em}.subtitle{font-size:13px;line-height:1.6;color:var(--muted);margin-top:8px;max-width:850px}
+.title{font-size:36px;font-weight:600;letter-spacing:-.03em}.subtitle{font-size:13px;line-height:1.6;color:var(--muted);margin-top:12px;max-width:850px}
 .title-row {display: flex;align-items: baseline;gap: 20px;}
 .subtitle-en {font-size: 18px;font-family: sans-serif;font-weight: 600;color: var(--text);margin-top: 4px;letter-spacing: -0.02em;}
 .stats{display:flex;gap:7px;flex-wrap:wrap}.stat{padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:var(--panel);font-size:12px}
@@ -22,7 +22,7 @@ svg{width:100%;height:auto;display:block}
 .point{cursor:pointer;stroke:#fff;stroke-width:1.1}.point.dim{opacity:.12}.point.highlight{stroke:#172033;stroke-width:2.2;opacity:1}
 .mean-line{stroke:#172033;stroke-width:1.2;stroke-dasharray:4 3;opacity:.55}
 .axis path,.axis line{stroke:#dfe3e8}.axis text{fill:#341D0C;font-size:12px}.grid line{stroke:#eef0f3}
-.legend{display:flex;gap:6px;flex-wrap:wrap;margin-top:20px;margin-bottom:20px}.legend button{border:1px solid #dfe3e8;background:#f8fafc;border-radius:999px;padding:8px 10px;font-size:14px;font-weight:500;cursor:pointer;min-height:34px;transition:background-color .18s ease,color .18s ease,border-color .18s ease}.legend button:hover,.legend button.active{background:#341D0C !important;color:#ffffff !important;border-color:#341D0C !important}
+.legend{display:flex;gap:6px;flex-wrap:wrap;margin-top:20px;margin-bottom:20px}.legend.intro button{opacity:0;transform:translateY(10px) scale(.94)}.legend.intro button.intro-in{animation:legendIntro .45s cubic-bezier(.2,.8,.2,1) forwards}@keyframes legendIntro{from{opacity:0;transform:translateY(10px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}.legend button{border:1px solid #dfe3e8;background:#f8fafc;border-radius:999px;padding:8px 10px;font-size:14px;font-weight:500;cursor:pointer;min-height:34px;transition:background-color .18s ease,color .18s ease,border-color .18s ease}.legend button:hover,.legend button.active{background:#341D0C !important;color:#ffffff !important;border-color:#341D0C !important}
 .detail{min-height:145px;margin-top:11px;padding:13px;border-radius:12px;background:var(--card);border:1px solid var(--border)}
 .detail-name{font-weight:600;font-size:16px}.detail-staple{font-size:14px;margin-top:5px}.muted{color:var(--muted)}
 .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.detail-box{padding:9px;border-radius:9px;background:#fff;border:1px solid var(--border)}.detail-label{font-size:10px;color:var(--muted)}.detail-value{font-size:16px;font-weight:750;margin-top:2px}
@@ -30,21 +30,30 @@ svg{width:100%;height:auto;display:block}
 .tip{position:fixed;z-index:9999;pointer-events:none;padding:7px 9px;border-radius:8px;background:#341D0C;color:#fff;font-size:11px;display:none;max-width:230px}
 @media(max-width:800px){main{padding:14px}.layout{grid-template-columns:1fr}.title{font-size:20px}}
 .axis.y text{transform:translateY(12px)}
+
+.title-row.intro-title{
+  opacity:0;
+}
+.title-row.intro-title.title-in{
+  animation:titleIntro .55s ease-out forwards;
+}
+@keyframes titleIntro{
+  from{opacity:0}
+  to{opacity:1}
+}
+
 </style>
 </head>
 <body>
 <main id="staple-viz">
 <div class="top">
-  <div class="intro">
-    <div class="title-row">
-      <div class="title">🌾 세계의 대표 주식 × 평균수명</div>
-      <div class="title-en">Staple Foods of the World × Life Expectancy</div>
-    </div>
-    <div class="subtitle">
-      2021–2023년 평균. 지도는 국가별로 11개 주요 작물 중 칼로리 공급량이 가장 큰
-      6개 카테고리를 보여주고, 오른쪽은 대표 주식과 평균수명의 관계를 탐색합니다.
-    </div>
-  </div>
+<div class="title-row intro-title">
+  <div class="title">🌾 세계의 대표 주식 × 평균수명</div>
+  <div class="title-en">Staple Foods of the World × Life Expectancy</div>
+</div>
+<div class="subtitle">
+  2021–2023년 평균. 지도는 국가별로 11개 주요 작물 중 칼로리 공급량이 가장 큰
+  6개 카테고리를 보여주고, 오른쪽은 대표 주식과 평균수명의 관계를 탐색합니다.
 </div>
 <div class="layout">
 <section class="card">
@@ -110,11 +119,15 @@ scatter.append('g').attr('class','axis y').attr('transform','translate(48,0)').c
 scatter.append('g').attr('class','axis x').attr('transform','translate(0,455)').call(d3.axisBottom(x).tickFormat(k=>{let c=C.find(z=>z.k===k);return c.e+' '+c.n}));
 function jitter(i){let z=Math.sin((i+1)*12.9898)*43758.5453;return((z-Math.floor(z))-.5)*34}
 const pts=DATA.map((d,i)=>({...d,j:jitter(i),i}));
+let introAnimating=true;
+let pointsInitialized=false;
 function render(){
 layer.selectAll('path').attr('class',f=>{let d=datum(f);if(!d)return'country nodata';let dim=(filter!==null&&d.cat!==filter)||(selected&&d.code!==selected);return'country'+(dim?' dim':'')+(selected&&d.code===selected?' selected':'')});
 capitalLayer.selectAll('g.capital').classed('dim',d=>(filter!==null&&d.cat!==filter)||(selected&&d.code!==selected));
-scatter.selectAll('.point').data(pts).join('circle').attr('class','point').attr('cx',d=>x(C[d.cat].k)+d.j).attr('cy',d=>y(d.life)).attr('r',d=>d.code===selected?6.2:4).attr('fill',d=>colors[d.cat])
-.classed('dim',d=>(filter!==null&&d.cat!==filter)||(selected&&d.code!==selected)).classed('highlight',d=>d.code===selected||d.code===hover)
+const pointSel=scatter.selectAll('.point').data(pts,d=>d.code).join('circle').attr('class','point').attr('cx',d=>x(C[d.cat].k)+d.j).attr('r',d=>d.code===selected?6.2:4).attr('fill',d=>colors[d.cat]);
+if(!introAnimating || !pointsInitialized) pointSel.attr('cy',d=>y(d.life));
+pointsInitialized=true;
+pointSel.classed('dim',d=>(filter!==null&&d.cat!==filter)||(selected&&d.code!==selected)).classed('highlight',d=>d.code===selected||d.code===hover)
 .on('mouseenter',(ev,d)=>{hover=d.code;showTip(ev,`<b>${d.name}</b><br>${C[d.cat].e} ${C[d.cat].n}<br>평균수명 ${d.life.toFixed(1)}세`);render()})
 .on('mousemove',moveTip).on('mouseleave',()=>{hover=null;tip.style.display='none';render()}).on('click',(ev,d)=>{selected=d.code;render();detail(d)});
 scatter.selectAll('.mean-line').remove();
@@ -124,7 +137,37 @@ function detail(d){document.getElementById('detail').innerHTML=`<div class="deta
 function showTip(ev,html){tip.innerHTML=html;tip.style.display='block';moveTip(ev)}function moveTip(ev){tip.style.left=(ev.clientX+12)+'px';tip.style.top=(ev.clientY+12)+'px'}
 const legend=document.getElementById('legend');
 const catCounts=C.map((_,i)=>DATA.filter(d=>d.cat===i).length); C.forEach((c,i)=>{let b=document.createElement('button');b.type='button';b.style.background=colors[i];b.style.color='#341D0C';b.style.borderColor=colors[i];b.innerHTML=`<span class="dot" style="background:#fff"></span>${c.e} ${c.n} <span style="opacity:.85;margin-left:3px">· ${catCounts[i]}개국</span>`;b.onclick=()=>{filter=filter===i?null:i;legend.querySelectorAll('button').forEach((q,j)=>q.classList.toggle('active',filter===j));render()};legend.appendChild(b)});
+
+legend.addEventListener('click',ev=>{if(ev.target===legend){filter=null;legend.querySelectorAll('button').forEach(q=>q.classList.remove('active'));render()}});
+
+
+const introTitle=document.querySelector('.title-row.intro-title');
+if(introTitle){
+  requestAnimationFrame(()=>{
+    introTitle.classList.add('title-in');
+  });
+}
+
+// Initial render first, then play the three one-time entrance animations.
 render();
+const countryPaths=layer.selectAll('path');
+countryPaths.attr('fill','#d9dde4')
+  .transition().duration(500).delay((d,i)=>i*8)
+  .attr('fill',f=>{const d=datum(f);return d?colors[d.cat]:'#d9dde4';});
+
+const introPoints=scatter.selectAll('.point');
+introPoints.attr('cy',y(50))
+  .transition().duration(520).delay((d,i)=>160+i*7)
+  .attr('cy',d=>y(d.life))
+  .on('end',function(){if(d3.select(this).datum()===pts[pts.length-1]){introAnimating=false;render();}});
+
+legend.classList.add('intro');
+legend.querySelectorAll('button').forEach((b,i)=>{
+  b.classList.add('intro-in');
+  b.style.animationDelay=(i*100)+'ms';
+});
+setTimeout(()=>legend.classList.remove('intro'),650);
+
 loadCapitals();
 </script>
 </body>
