@@ -22,7 +22,24 @@ svg{width:100%;height:auto;display:block}
 .point{cursor:pointer;stroke:#fff;stroke-width:1.1}.point.dim{opacity:.12}.point.highlight{stroke:#172033;stroke-width:2.2;opacity:1}
 .mean-line{stroke:#172033;stroke-width:1.2;stroke-dasharray:4 3;opacity:.55}
 .axis path,.axis line{stroke:#dfe3e8}.axis text{fill:#341D0C;font-size:12px}.grid line{stroke:#eef0f3}
-.legend{display:flex;gap:6px;flex-wrap:wrap;margin-top:20px;margin-bottom:20px}.legend.intro button{opacity:0;transform:translateY(10px) scale(.94)}.legend.intro button.intro-in{animation:legendIntro .45s cubic-bezier(.2,.8,.2,1) forwards}@keyframes legendIntro{from{opacity:0;transform:translateY(10px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}.legend button{border:1px solid #dfe3e8;background:#f8fafc;border-radius:999px;padding:8px 10px;font-size:14px;font-weight:500;cursor:pointer;min-height:34px;transition:background-color .18s ease,color .18s ease,border-color .18s ease}.legend button:hover,.legend button.active{background:#341D0C !important;color:#ffffff !important;border-color:#341D0C !important}
+.map-wrap{position:relative}
+.map-zoom-controls{position:absolute;right:16px;bottom:16px;z-index:20;display:flex;flex-direction:row;gap:6px}
+.map-zoom-controls button{
+width:36px;height:36px;padding:0;border:0;outline:0;border-radius:9px;
+background:#F5F0EA;color:#341D0C;font-family:inherit;font-size:22px;
+line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;
+box-shadow:none;transition:background-color .18s ease,color .18s ease;
+}
+.map-zoom-controls button:hover{
+background:#341D0C;color:#FFFFFF;
+}
+.map-zoom-controls button:focus{
+background:#F5F0EA;color:#341D0C;border:0;outline:0;box-shadow:none;
+}
+.map-zoom-controls button:active{
+background:#341D0C;color:#FFFFFF;border:0;outline:0;box-shadow:none;
+}
+.map-zoom-controls button+button{border-left:0}.legend{display:flex;gap:6px;flex-wrap:wrap;margin-top:20px;margin-bottom:20px}.legend.intro button{opacity:0;transform:translateY(10px) scale(.94)}.legend.intro button.intro-in{animation:legendIntro .45s cubic-bezier(.2,.8,.2,1) forwards}@keyframes legendIntro{from{opacity:0;transform:translateY(10px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}.legend button{border:1px solid #dfe3e8;background:#f8fafc;border-radius:999px;padding:8px 10px;font-size:14px;font-weight:500;cursor:pointer;min-height:34px;transition:background-color .18s ease,color .18s ease,border-color .18s ease}.legend button:hover,.legend button.active{background:#341D0C !important;color:#ffffff !important;border-color:#341D0C !important}
 .detail{min-height:145px;margin-top:11px;padding:13px;border-radius:12px;background:var(--card);border:1px solid var(--border)}
 .detail-name{font-weight:600;font-size:16px}.detail-staple{font-size:14px;margin-top:5px}.muted{color:var(--muted)}
 .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.detail-box{padding:9px;border-radius:9px;background:#fff;border:1px solid var(--border)}.detail-label{font-size:10px;color:var(--muted)}.detail-value{font-size:16px;font-weight:750;margin-top:2px}
@@ -42,6 +59,8 @@ svg{width:100%;height:auto;display:block}
   to{opacity:1}
 }
 
+
+
 </style>
 </head>
 <body>
@@ -59,7 +78,13 @@ svg{width:100%;height:auto;display:block}
 <section class="card">
 <div class="section-title">전 세계 사람들은 주식으로 무엇을 먹을까?</div>
 <div class="legend" id="legend"></div>
-<svg id="map" viewBox="0 0 900 500" aria-label="국가별 대표 주식 세계지도"></svg>
+<div class="map-wrap">
+<div class="map-zoom-controls" aria-label="지도 확대 축소">
+  <button type="button" id="zoom-in" aria-label="지도 확대">+</button>
+  <button type="button" id="zoom-out" aria-label="지도 축소">−</button>
+</div>
+<svg id="map" viewBox="0 0 900 580" aria-label="국가별 대표 주식 세계지도"></svg>
+</div>
 <div class="note">※ 데이터가 없는 국가는 회색으로 표시됩니다. 지도에는 각 국가의 수도가 함께 표시됩니다. 범례를 클릭하면 해당 주식만 강조됩니다.</div>
 </section>
 <section class="card">
@@ -82,7 +107,9 @@ const topo=await import('https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/+esm
 const world=await import('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-50m.json/+esm');
 const countries=topo.feature(world.default,world.default.objects.countries).features;
 const map=d3.select('#map'),scatter=d3.select('#scatter'),tip=document.getElementById('tip');
-const proj=d3.geoNaturalEarth1().fitExtent([[8,8],[892,492]],{type:'FeatureCollection',features:countries}),path=d3.geoPath(proj);
+const mapZoom=d3.zoom().scaleExtent([0.9,3]).on('zoom',ev=>{layer.attr('transform',ev.transform);capitalLayer.attr('transform',ev.transform);});
+map.call(mapZoom).on('click.clear',ev=>{if(ev.target===map.node())clearSelection();});
+const proj=d3.geoNaturalEarth1().fitExtent([[8,8],[892,572]],{type:'FeatureCollection',features:countries}),path=d3.geoPath(proj);
 let selected=null,hover=null,filter=null;
 function datum(f){return byM49.get(String(+f.id).padStart(3,'0'))}
 function detailHTML(d){return `<div class="detail-name">${d.name}</div><div class="detail-staple">${C[d.cat].e} ${C[d.cat].n}</div><div class="detail-grid"><div class="detail-box"><div class="detail-label">2021–2023 평균수명</div><div class="detail-value">${d.life.toFixed(1)}세</div></div><div class="detail-box"><div class="detail-label">대표 주식 비중</div><div class="detail-value">${d.share.toFixed(1)}%</div></div></div>`}
@@ -138,7 +165,44 @@ function showTip(ev,html){tip.innerHTML=html;tip.style.display='block';moveTip(e
 const legend=document.getElementById('legend');
 const catCounts=C.map((_,i)=>DATA.filter(d=>d.cat===i).length); C.forEach((c,i)=>{let b=document.createElement('button');b.type='button';b.style.background=colors[i];b.style.color='#341D0C';b.style.borderColor=colors[i];b.innerHTML=`<span class="dot" style="background:#fff"></span>${c.e} ${c.n} <span style="opacity:.85;margin-left:3px">· ${catCounts[i]}개국</span>`;b.onclick=()=>{filter=filter===i?null:i;legend.querySelectorAll('button').forEach((q,j)=>q.classList.toggle('active',filter===j));render()};legend.appendChild(b)});
 
-legend.addEventListener('click',ev=>{if(ev.target===legend){filter=null;legend.querySelectorAll('button').forEach(q=>q.classList.remove('active'));render()}});
+function clearSelection(){
+  selected=null;
+  hover=null;
+  filter=null;
+  tip.style.display='none';
+  legend.querySelectorAll('button').forEach(q=>q.classList.remove('active'));
+  document.getElementById('detail').innerHTML='<div class="detail-name">국가를 선택해 주세요</div><div class="note">지도나 산점도의 국가를 클릭하면 상세 정보가 표시됩니다.</div>';
+  render();
+}
+
+const zoomIn=document.getElementById('zoom-in');
+const zoomOut=document.getElementById('zoom-out');
+zoomIn.addEventListener('click',ev=>{
+  ev.stopPropagation();
+  map.transition().duration(220).call(mapZoom.scaleBy,1.25);
+});
+zoomOut.addEventListener('click',ev=>{
+  ev.stopPropagation();
+  map.transition().duration(220).call(mapZoom.scaleBy,0.8);
+});
+
+legend.addEventListener('click',ev=>{
+  if(ev.target===legend){
+    clearSelection();
+  }
+});
+
+// 선택된 국가/산점도 점을 해제할 때는 카드의 흰색 여백이나
+// 지도·산점도의 빈 영역을 클릭하면 됩니다.
+// 실제 인터랙티브 요소를 클릭했을 때는 기존 선택 동작을 유지합니다.
+document.querySelectorAll('.card').forEach(card=>{
+  card.addEventListener('click',ev=>{
+    if(ev.target.closest('.legend button, .country, .point, .capital')) return;
+    if(ev.target===card || ev.target.tagName.toLowerCase()==='svg'){
+      clearSelection();
+    }
+  });
+});
 
 
 const introTitle=document.querySelector('.title-row.intro-title');
@@ -150,6 +214,8 @@ if(introTitle){
 
 // Initial render first, then play the three one-time entrance animations.
 render();
+const initialZoom=1.22;
+map.call(mapZoom.transform,d3.zoomIdentity.translate((900-900*initialZoom)/2,(580-580*initialZoom)/2).scale(initialZoom));
 const countryPaths=layer.selectAll('path');
 countryPaths.attr('fill','#d9dde4')
   .transition().duration(500).delay((d,i)=>i*8)
