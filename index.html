@@ -43,7 +43,7 @@ background:#341D0C;color:#FFFFFF;border:0;outline:0;box-shadow:none;
 .detail{min-height:145px;margin-top:11px;padding:13px;border-radius:12px;background:var(--card);border:1px solid var(--border)}
 .detail-name{font-weight:600;font-size:16px}.detail-staple{font-size:14px;margin-top:5px}.muted{color:var(--muted)}
 .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.detail-box{padding:9px;border-radius:9px;background:#fff;border:1px solid var(--border)}.detail-label{font-size:10px;color:var(--muted)}.detail-value{font-size:16px;font-weight:750;margin-top:2px}
-.note{font-size:10px;line-height:1.55;color:var(--muted);margin-top:8px}.source{font-size:10px;color:var(--muted);margin-top:10px}
+.note{font-size:12px;line-height:1.55;color:var(--muted);margin-top:8px}.source{font-size:10px;color:var(--muted);margin-top:10px}
 .tip{position:fixed;z-index:9999;pointer-events:none;padding:7px 9px;border-radius:8px;background:#341D0C;color:#fff;font-size:11px;display:none;max-width:230px}
 @media(max-width:800px){main{padding:14px}.layout{grid-template-columns:1fr}.title{font-size:20px}}
 .axis.y text{transform:translateY(12px)}
@@ -91,7 +91,7 @@ background:#341D0C;color:#FFFFFF;border:0;outline:0;box-shadow:none;
 <div class="section-title">대표 주식별 평균수명</div>
 <div class="note">지도나 산점도에서 국가를 선택해 주세요</div>
 <svg id="scatter" viewBox="0 0 430 500" aria-label="대표 주식별 국가 평균수명 산점도"></svg>
-<div class="detail" id="detail"><div class="detail-name">지도나 산점도의 국가를 클릭하면 상세 정보가 표시됩니다.</div></div>
+<div class="detail" id="detail"><div class="note">지도나 산점도의 국가를 클릭하면 이곳에 상세 정보가 표시됩니다.</div></div>
 <div class="note">대표 주식 칼로리 비중은 <b>전체 식단의 비중이 아니라</b>, 이 분석에 포함한 6개 주식 후보 작물의 총 칼로리 공급량 중 대표 주식 카테고리가 차지하는 비중입니다.</div>
 </section>
 </div>
@@ -172,7 +172,7 @@ function clearSelection(){
   filter=null;
   tip.style.display='none';
   legend.querySelectorAll('button').forEach(q=>q.classList.remove('active'));
-document.getElementById('detail').innerHTML='<div class="detail-name">지도나 산점도의 국가를 클릭하면 상세 정보가 표시됩니다.</div>';
+document.getElementById('detail').innerHTML='<div class="note">지도나 산점도의 국가를 클릭하면 이곳에 상세 정보가 표시됩니다.</div>';
   render();
 }
 
