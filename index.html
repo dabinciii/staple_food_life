@@ -214,7 +214,7 @@ if(introTitle){
 
 // Initial render first, then play the three one-time entrance animations.
 render();
-const initialZoom=1.4;
+const initialZoom=1.6;
 map.call(mapZoom.transform,d3.zoomIdentity.translate((900-900*initialZoom)/2,(580-580*initialZoom)/2).scale(initialZoom));
 const countryPaths=layer.selectAll('path');
 countryPaths.attr('fill','#d9dde4')
